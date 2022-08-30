@@ -2,7 +2,7 @@ import Card from "./shared/Card";
 import Button from "./shared/Button";
 import RatingSelect from "./RatingSelect";
 
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef,  } from "react";
 import { FeedbackContext } from "../context/FeedbackContext";
 
 function FeedbackForm({ handleAdd }) {
@@ -14,6 +14,7 @@ function FeedbackForm({ handleAdd }) {
   const { addFeedback, feedbackEdit, updateFeedback } = useContext(FeedbackContext);
 
   const textareaRef = useRef();
+  const formRef = useRef();
 
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -43,9 +44,17 @@ function FeedbackForm({ handleAdd }) {
       setMessage(null);
       setBtnDisabled(false);
     }
-  }, [handleTextChange]);
+  }, [ text]);
+
+  const handleTextArea = (e) => {
+    if(e.key === 'Enter' && e.shiftKey === false) {
+      e.preventDefault()
+      formRef.current.requestSubmit();
+    }
+  }
 
   const handleSubmit = (e) => {
+    console.log(e)
     e.preventDefault();
     if (text.trim().length > 10) {
       const newFeedback = {
@@ -64,11 +73,12 @@ function FeedbackForm({ handleAdd }) {
 
   return (
     <Card>
-      <form onSubmit={handleSubmit}>
+      <form ref={formRef} onSubmit={handleSubmit}>
         <h2>How would you rate your service with us?</h2>
         <RatingSelect select={(rating) => setRating(rating)} />
         <div className="input-group">
           <textarea
+            onKeyDown={handleTextArea}
             ref={textareaRef}
             onChange={handleTextChange}
             value={text}
